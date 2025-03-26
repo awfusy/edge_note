@@ -1,0 +1,1720 @@
+﻿Lab 1 - Sound Analytics
+
+Basic Setup
+✅ How to install and activate a virtual environment?
+bash
+CopyEdit
+# Install virtual environment package
+sudo apt install python3-venv
+
+
+# Create virtual environment named "audio"
+python3 -m venv audio
+
+
+# Activate the virtual environment
+source audio/bin/activate
+
+
+How do you record audio from the microphone on the command line?
+bash
+CopyEdit
+# Record 10 seconds of audio
+arecord --duration=10 test.wav
+
+
+# Play the recorded audio
+aplay test.wav
+
+
+Microphone & Audio Handling
+✅ What does arecord and aplay do?
+* arecord: A command-line tool to record audio from the microphone and save it as a .wav file.
+
+* aplay: A command-line tool to play audio files (usually .wav) through the speaker or headphones.
+
+✅ What’s the difference between pyaudio and sounddevice?
+   * Both are Python libraries for audio I/O.
+
+   * pyaudio: Uses PortAudio internally. It's lower-level and more customizable but may require additional configuration.
+
+   * sounddevice: Higher-level and simpler syntax, often preferred for quick audio input/output tasks.
+
+✅ Can you write a Python script to record and play back audio?
+Using sounddevice:
+python
+CopyEdit
+import sounddevice as sd
+from scipy.io.wavfile import write
+
+
+fs = 44100  # Sample rate
+duration = 5  # seconds
+print("Recording...")
+audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
+sd.wait()
+write('output.wav', fs, audio)
+print("Recording finished. Now playing...")
+sd.play(audio, fs)
+sd.wait()
+
+
+________________
+
+
+📈 Audio Analysis & Visualization
+✅ What does Fourier Transform do in audio analysis?
+  * Fourier Transform converts time-domain signals (waveform) into frequency-domain signals (spectrum).
+
+  * It helps identify the frequencies present in a sound signal, which is crucial for understanding the sound’s characteristics.
+
+✅ Can you explain the difference between waveform and spectrum plots?
+    * Waveform Plot: Amplitude vs Time. Shows how sound varies over time.
+
+    * Spectrum Plot: Amplitude/Power vs Frequency. Shows which frequencies are present in the sound and how strong they are.
+
+✅ How does a bandpass filter work and why is it useful?
+   * A bandpass filter allows only a specific range of frequencies to pass through and attenuates all others.
+
+   * Useful for removing noise (e.g., low-frequency hum) or isolating particular sounds like voice or tapping sounds.
+
+________________
+
+
+🎼 Feature Extraction
+✅ What is a Spectrogram, Chromogram, Mel Spectrogram, and MFCC?
+  * Spectrogram: Visual representation of frequency vs time (2D plot of amplitude/power at different frequencies over time).
+
+  * Chromogram (Chroma feature): Shows energy of each pitch class (like musical notes C, D, E…) over time.
+
+  * Mel Spectrogram: Like a spectrogram, but frequency is scaled to Mel scale (closer to how humans perceive pitch).
+
+  * MFCC (Mel Frequency Cepstral Coefficients): Compact representation of the audio signal. Captures timbre and speech characteristics used in speech and speaker recognition.
+
+✅ Can you describe why MFCC is useful for speech recognition?
+   * MFCCs mimic how humans hear sound. They capture phonetic features like vowels and consonants, making them ideal for speech recognition systems.
+
+* They reduce dimensionality while preserving the essential characteristics of speech.
+
+✅ How does the Mel scale differ from normal frequency?
+    * Mel scale is non-linear: It emphasizes lower frequencies more finely, similar to how the human ear is more sensitive to lower frequencies.
+
+    * Normal frequency scale is linear, but human hearing is logarithmic, hence Mel scale is more perceptually relevant.
+
+________________
+
+
+🗣️ Speech Recognition
+✅ How do CMUSphinx and Google Speech Recognition differ?
+    * CMUSphinx:
+
+  * Offline/Edge-based recognition.
+
+    * Less accurate, limited vocabulary.
+
+     * Good for low-resource or private systems.
+
+    * Google Speech Recognition:
+
+    * Cloud-based.
+
+    * High accuracy with large vocabulary.
+
+   * Requires Internet access and sends audio to Google servers.
+
+✅ What is the role of speech_recognition library?
+    * Acts as a unified interface to multiple speech recognition engines/APIs (CMUSphinx, Google, Microsoft, etc.).
+
+    * Helps record audio, recognize speech, and convert it to text easily.
+
+✅ Can you implement a basic speech-to-text system using a microphone?
+python
+CopyEdit
+import speech_recognition as sr
+
+
+r = sr.Recognizer()
+with sr.Microphone() as source:
+    print("Say something...")
+    audio = r.listen(source)
+
+
+try:
+    text = r.recognize_google(audio)
+    print("You said:", text)
+except sr.UnknownValueError:
+    print("Speech not understood")
+except sr.RequestError:
+    print("API request failed")
+
+
+________________
+
+
+💡 Application and Extension
+✅ Can you describe a real-life application of this lab (e.g., digital stethoscope)?
+   * Digital Stethoscope: Uses microphone to record lung or heart sounds.
+
+     * Filters and extracts features like spectrograms or MFCCs.
+
+     * Helps doctors diagnose respiratory diseases or monitor heartbeats.
+
+     * Data can be stored, analyzed, or used for remote diagnostics (telemedicine).
+
+✅ How would you create a wake word detection system?
+   * Record audio continuously in the background.
+
+   * Use a sliding window MFCC extractor.
+
+   * Train a simple classifier (e.g., SVM, CNN) to detect if the spoken word matches a keyword (e.g., “Hey Pi”).
+
+    * Trigger actions when keyword is detected (e.g., start listening or run a command).
+
+✅ How would you create a sound classification model using features like MFCC?
+  1. Collect labeled audio samples of various sound types (clapping, speaking, dog bark, etc.).
+
+2. Extract MFCC features from each sample using librosa.
+
+   3. Train a machine learning model (e.g., Random Forest, SVM, or Neural Network).
+
+4. Test model on unseen sounds and evaluate accuracy.
+
+    5. Deploy on Raspberry Pi to classify real-time sounds.
+
+
+Section A: Basic Setup and Microphone Testing (10 marks)
+Q1. (2 marks)
+Write the commands to:
+a) Create a virtual environment called audio
+ b) Activate the virtual environment
+Answer:
+bash
+CopyEdit
+sudo apt install python3-venv  
+python3 -m venv audio  
+source audio/bin/activate
+
+
+________________
+
+
+Q2. (2 marks)
+How do you verify that your USB microphone is working on Raspberry Pi?
+Answer: Record and playback using:
+bash
+CopyEdit
+arecord --duration=5 test.wav  
+aplay test.wav
+
+
+________________
+
+
+Q3. (2 marks)
+Install pyaudio and sounddevice libraries in the virtual environment.
+Answer:
+bash
+CopyEdit
+sudo apt install portaudio19-dev  
+pip install pyaudio  
+pip install sounddevice
+
+
+________________
+
+
+Q4. (4 marks)
+Write a Python script to record audio using sounddevice and save it as a .wav file.
+Answer:
+python
+CopyEdit
+import sounddevice as sd  
+from scipy.io.wavfile import write
+
+
+fs = 44100  # Sample rate  
+duration = 5  # seconds
+
+
+print("Recording...")  
+audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)  
+sd.wait()  
+write('output.wav', fs, audio)  
+print("Recording saved.")
+
+
+________________
+
+
+Section B: Sound Visualization and Frequency Analysis (10 marks)
+Q5. (2 marks)
+Why do we perform a Fourier Transform on an audio signal?
+Answer:
+ To convert the time-domain signal into frequency domain, 
+identifying which frequencies are present in the sound.
+________________
+
+
+Q6. (2 marks)
+What is the difference between a waveform plot and a spectrum plot?
+Answer:
+                                                   * Waveform Plot: Amplitude vs Time
+
+                                                   * Spectrum Plot: Amplitude/Power vs Frequency
+Spectrum plots are better for identifying pitch and harmonics.
+
+________________
+
+
+Q7. (4 marks)
+Write a Python snippet to visualize the frequency spectrum of a .wav file.
+Answer:
+python
+CopyEdit
+import numpy as np  
+import matplotlib.pyplot as plt  
+from scipy.io import wavfile
+
+
+fs, data = wavfile.read('output.wav')  
+data = data.flatten()
+
+
+fft_spectrum = np.fft.fft(data)  
+freq = np.fft.fftfreq(len(fft_spectrum), 1/fs)
+
+
+plt.plot(freq[:len(freq)//2], np.abs(fft_spectrum[:len(freq)//2]))  
+plt.title('Frequency Spectrum')  
+plt.xlabel('Frequency (Hz)')  
+plt.ylabel('Amplitude')  
+plt.show()
+
+
+________________
+
+
+Q8. (2 marks)
+What are the typical frequency ranges of human speech?
+Answer:
+ Human speech generally ranges from 300 Hz to 3400 Hz.
+________________
+
+
+Section C: Sound Filtering and Feature Extraction (10 marks)
+Q9. (2 marks)
+What does a bandpass filter do?
+Answer:
+ It allows only a specific range of frequencies to pass through and 
+blocks others, useful for noise removal or isolating sounds.
+________________
+
+
+Q10. (2 marks)
+Install the librosa library used for advanced audio feature extraction.
+Answer:
+bash
+CopyEdit
+pip install librosa
+
+
+________________
+
+
+Q11. (4 marks)
+List and briefly describe four audio features extracted using librosa.
+Answer:
+      1. Spectrogram – Frequency intensity over time
+
+      2. Chromogram – Pitch class distribution over time
+
+       3. Mel Spectrogram – Frequency vs time on a perceptual Mel scale
+
+      4. MFCC (Mel Frequency Cepstral Coefficients) – Summarizes the audio spectrum in a 
+compact form ideal for speech analysis
+
+________________
+
+
+Q12. (2 marks)
+Why are MFCCs commonly used in speech recognition systems?
+Answer:
+ They mimic human auditory perception, capture important speech characteristics, 
+and reduce data dimensionality for better classification.
+________________
+
+
+Section D: Speech Recognition (10 marks)
+Q13. (2 marks)
+Install the required packages for speech recognition using speech_recognition.
+Answer:
+bash
+CopyEdit
+sudo apt-get install flac  
+pip install pocketsphinx  
+pip install SpeechRecognition
+
+
+________________
+
+
+Q14. (4 marks)
+Write a basic script to capture speech and convert it to text using Google Speech API.
+Answer:
+python
+CopyEdit
+import speech_recognition as sr
+
+
+r = sr.Recognizer()  
+with sr.Microphone() as source:  
+    print("Say something...")  
+    audio = r.listen(source)
+
+
+try:  
+    text = r.recognize_google(audio)  
+    print("You said:", text)  
+except sr.UnknownValueError:  
+    print("Could not understand audio")  
+except sr.RequestError:  
+    print("Request to API failed")
+
+
+________________
+
+
+Q15. (2 marks)
+What is the difference between CMUSphinx and Google Speech API?
+Answer:
+   * CMUSphinx is offline, lightweight, works without internet
+
+   * Google API is cloud-based, more accurate, supports larger vocabulary
+
+________________
+
+
+Q16. (2 marks)
+Suggest a simple application you can build using wake word detection.
+Answer:
+ A voice-controlled home assistant that activates when you say "Hey Pi" or "Hello Device", 
+then performs specific tasks like turning on a light or playing music.
+
+
+Lab 2 - Image Analytics
+
+
+Section A: Basic Setup and Webcam Testing (10 marks)
+Q1. (2 marks)
+Write the commands to:
+a) Create a virtual environment called image
+ b) Activate the virtual environment
+Answer:
+bash
+CopyEdit
+sudo apt install python3-venv  
+python3 -m venv image  
+source image/bin/activate
+
+
+________________
+
+
+Q2. (2 marks)
+How do you verify that your webcam is connected and recognized by Raspberry Pi?
+Answer:
+ You can use:
+bash
+CopyEdit
+ls /dev/video*
+
+
+or test using Python OpenCV:
+python
+CopyEdit
+import cv2  
+cap = cv2.VideoCapture(0)  
+if cap.isOpened():  
+    print("Webcam connected successfully")
+
+
+________________
+
+
+Q3. (2 marks)
+Install OpenCV in the virtual environment.
+Answer:
+bash
+CopyEdit
+pip install opencv-python
+
+
+________________
+
+
+Q4. (4 marks)
+Write a Python script to capture live video from a webcam and display it using OpenCV.
+Answer:
+python
+CopyEdit
+import cv2  
+cap = cv2.VideoCapture(0)
+
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+    cv2.imshow('Live Feed', frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+
+cap.release()
+cv2.destroyAllWindows()
+
+
+________________
+
+
+Section B: Color Segmentation (10 marks)
+Q5. (4 marks)
+Extend the above code to segment red color from the live feed.
+Answer:
+python
+CopyEdit
+import cv2  
+import numpy as np
+
+
+cap = cv2.VideoCapture(0)
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_red = np.array([0, 120, 70])
+    upper_red = np.array([10, 255, 255])
+    mask = cv2.inRange(hsv, lower_red, upper_red)
+    result = cv2.bitwise_and(frame, frame, mask=mask)
+    
+    cv2.imshow('Red Color Segment', result)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+
+cap.release()
+cv2.destroyAllWindows()
+
+
+________________
+
+
+Q6. (2 marks)
+How can you segment yellow color instead of red?
+Answer:
+ Change the HSV range to:
+python
+CopyEdit
+lower_yellow = np.array([25, 150, 150])  
+upper_yellow = np.array([35, 255, 255])
+
+
+________________
+
+
+Q7. (4 marks)
+Why is HSV used for color segmentation instead of RGB?
+Answer:
+  * HSV separates color (Hue) from brightness (Value), making it more robust under different lighting.
+
+  * RGB is intensity-sensitive; HSV is more suitable for consistent color detection.
+
+________________
+
+
+Section C: HoG Feature Extraction (10 marks)
+Q8. (2 marks)
+What does HoG (Histogram of Oriented Gradients) extract from an image?
+Answer:
+ HoG extracts gradient orientation and edge information from image patches — 
+useful for object detection (e.g., face, pedestrians).
+________________
+
+
+Q9. (4 marks)
+Write a Python snippet to compute HoG features using scikit-image.
+Answer:
+python
+CopyEdit
+from skimage.feature import hog  
+from skimage import color  
+import cv2
+
+
+image = cv2.imread('image.jpg')  
+gray = color.rgb2gray(image)  
+features, hog_image = hog(gray, visualize=True)  
+cv2.imshow('HOG Features', hog_image)  
+cv2.waitKey(0)  
+cv2.destroyAllWindows()
+
+
+________________
+
+
+Q10. (2 marks)
+What happens when you reduce the image resolution before applying HoG?
+Answer:
+    * Reduces computation time
+
+    * Slight loss of detail
+
+    * Improves speed — useful for edge computing
+
+________________
+
+
+Q11. (2 marks)
+What does changing the pixels_per_cell in HoG affect?
+Answer:
+     * Smaller cells capture finer features
+
+      * Larger cells generalize features more
+
+     * Affects feature sensitivity and performance
+
+________________
+
+
+Section D: Face Detection & Landmark Extraction (10 marks)
+Q12. (2 marks)
+Install Mediapipe library.
+Answer:
+bash
+CopyEdit
+pip install mediapipe
+
+
+________________
+
+
+Q13. (4 marks)
+Write a basic code to detect face using Mediapipe.
+Answer:
+python
+CopyEdit
+import cv2  
+import mediapipe as mp
+
+
+cap = cv2.VideoCapture(0)  
+mp_face = mp.solutions.face_detection  
+face = mp_face.FaceDetection()
+
+
+while True:
+    ret, frame = cap.read()
+    results = face.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    if results.detections:
+        for detection in results.detections:
+            bbox = detection.location_data.relative_bounding_box
+            h, w, _ = frame.shape
+            x = int(bbox.xmin * w)
+            y = int(bbox.ymin * h)
+            w_box = int(bbox.width * w)
+            h_box = int(bbox.height * h)
+            cv2.rectangle(frame, (x, y), (x + w_box, y + h_box), (255, 0, 0), 2)
+
+
+    cv2.imshow('Face Detection', frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+
+cap.release()  
+cv2.destroyAllWindows()
+
+
+________________
+
+
+Q14. (2 marks)
+Why is Mediapipe preferred for embedded/edge devices?
+Answer:
+     * Lightweight, fast inference
+
+      * Pretrained mobile-optimized models
+
+      * High accuracy, low latency on devices like Raspberry Pi
+
+________________
+
+
+Q15. (2 marks)
+List two other facial analysis tasks possible with Mediapipe.
+Answer:
+     1. Face Mesh / Landmark detection
+
+      2. Hand Gesture Recognition
+
+ 3. Pose Estimation
+
+   4. Object Tracking
+
+
+
+Lab 3 - Video Analytics
+
+
+Section A: Basic Setup and Webcam Testing (10 marks)
+Q1. (2 marks)
+Write the commands to:
+a) Create a virtual environment called video
+ b) Activate the virtual environment
+Answer:
+bash
+CopyEdit
+sudo apt install python3-venv  
+python3 -m venv video  
+source video/bin/activate
+
+
+________________
+
+
+Q2. (2 marks)
+Install the required libraries for this experiment.
+Answer:
+bash
+CopyEdit
+pip install opencv-python  
+pip install mediapipe
+
+
+________________
+
+
+Q3. (2 marks)
+How do you test if your webcam is connected to the Raspberry Pi?
+Answer: Use the command:
+bash
+CopyEdit
+ls /dev/video*
+
+
+Or test it through a basic OpenCV script:
+python
+CopyEdit
+import cv2  
+cap = cv2.VideoCapture(0)  
+if cap.isOpened():  
+    print("Webcam working")
+
+
+________________
+
+
+Q4. (4 marks)
+Write a Python code to capture and display real-time video feed from a webcam.
+Answer:
+python
+CopyEdit
+import cv2  
+cap = cv2.VideoCapture(0)
+
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+    cv2.imshow('Video Stream', frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+
+cap.release()
+cv2.destroyAllWindows()
+
+
+________________
+
+
+Section B: Optical Flow (10 marks)
+Q5. (2 marks)
+What is Optical Flow and why is it used?
+Answer:
+ Optical flow is the pattern of apparent motion of objects in a video sequence, 
+used for tracking movement, object motion detection, and trajectory estimation.
+________________
+
+
+Q6. (4 marks)
+What are the two methods used in OpenCV for optical flow? How are they different?
+Answer:
+ 1. Lucas-Kanade Optical Flow – Sparse, tracks few features; good for fast motion tracking.
+
+  2. Farneback Optical Flow – Dense, calculates motion for every pixel; better for detailed motion detection.
+
+________________
+
+
+Q7. (2 marks)
+Where should you modify parameters for better optical flow output?
+Answer:
+  * Line 12/18 of the code (where parameters like winSize, maxLevel, criteria are set)
+
+   * Try values like larger winSize for better smoothing or adjust maxLevel for pyramid levels.
+
+________________
+
+
+Q8. (2 marks)
+How can changing optical flow parameters affect results?
+Answer:
+ It affects motion sensitivity, accuracy, and smoothness of arrows/flow lines. Fine-tuning helps balance between detail vs performance.
+________________
+
+
+Section C: Hand Landmark Detection (10 marks)
+Q9. (2 marks)
+Download the MediaPipe model for hand landmark detection.
+Answer:
+bash
+CopyEdit
+wget -q https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
+
+
+________________
+
+
+Q10. (4 marks)
+Modify the code to show all 21 hand landmarks and display number of fingers raised.
+Answer:
+  * Use landmarks list from MediaPipe.
+
+   * Count finger tips raised using coordinate logic.
+
+    * Use cv2.putText() to display number on screen.
+
+Example snippet:
+python
+CopyEdit
+cv2.putText(frame, str(finger_count), (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+
+
+________________
+
+
+Q11. (2 marks)
+What does each hand landmark represent in MediaPipe?
+Answer:
+ Each point corresponds to a specific joint or fingertip, with a total of 21 landmarks per hand, enabling gesture and pose analysis.
+________________
+
+
+Q12. (2 marks)
+List two real-world applications of hand landmark detection.
+Answer:
+   1. Sign language translation
+
+    2. Gesture-based human-computer interaction (e.g., touchless control panels)
+
+________________
+
+
+Section D: Gesture and Object Detection (10 marks)
+Q13. (2 marks)
+Download the MediaPipe model for gesture recognition.
+Answer:
+bash
+CopyEdit
+wget -O gesture_recognizer.task -q https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task
+
+
+________________
+
+
+Q14. (2 marks)
+What type of gestures can be recognized using this model?
+Answer:
+ Common gestures include:
+   * Victory sign
+
+    * Thumbs up
+
+     * Open palm
+
+       * Closed fist
+
+________________
+
+
+Q15. (4 marks)
+Download the TFLite model for object detection and explain how it works.
+Answer:
+bash
+CopyEdit
+wget -q -O efficientdet.tflite https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/int8/1/efficientdet_lite0.tflite
+
+
+       * This is a lightweight pretrained model (EfficientDet-Lite0).
+
+        * Detects multiple object types in real-time with bounding boxes and labels.
+
+________________
+
+
+Q16. (2 marks)
+Suggest an idea for object-based video summarization.
+Answer:
+* Capture only frames containing specific objects (e.g., "cellphone").
+
+ * Save timestamps or frames for summary review.
+
+  * Reduces data and focuses on relevant content.
+
+
+
+
+
+
+Lab 4 - Deep Learning
+Q1. (2 marks)
+Write the commands to: a) Create a virtual environment called dlonedge
+ b) Activate the virtual environment
+Answer:
+bash
+CopyEdit
+sudo apt install python3-venv  
+python3 -m venv dlonedge  
+source dlonedge/bin/activate
+
+
+________________
+
+
+Q2. (2 marks)
+Install the required packages to run PyTorch and OpenCV on Raspberry Pi.
+Answer:
+bash
+CopyEdit
+pip install torch torchvision torchaudio  
+pip install opencv-python  
+pip install numpy --upgrade
+
+
+________________
+
+
+Q3. (2 marks)
+Which pre-trained model is used in this lab for real-time image classification?
+Answer:
+ MobileNetV2 — a lightweight deep learning model ideal for resource-constrained devices like Raspberry Pi.
+________________
+
+
+Q4. (4 marks)
+Write a Python snippet to load MobileNetV2 and run an inference on a single image frame 
+(assume it's preprocessed and available as img_tensor).
+Answer:
+python
+CopyEdit
+import torch
+import torchvision.models as models
+
+
+model = models.mobilenet_v2(pretrained=True)
+model.eval()
+
+
+with torch.no_grad():
+    output = model(img_tensor)
+    _, prediction = torch.max(output, 1)
+    print("Predicted class:", prediction.item())
+
+
+________________
+
+
+Section B: Quantization Concepts (10 marks)
+Q5. (2 marks)
+What is quantization in deep learning?
+Answer:
+ Quantization is the process of reducing the precision of model weights and activations 
+(e.g., from 32-bit float to 8-bit integer) to reduce memory usage and inference time.
+________________
+
+
+Q6. (4 marks)
+Compare the two types of quantization techniques:
+Type					Description									Accuracy				Complexity
+Post-Training Quantization		Applied after training by converting weights and activations to 8-bit		May degrade accuracy slightly		Easy
+Quantization Aware Training (QAT)	Fake quantization inserted during training phase				High accuracy retention			Requires retraining	
+	
+	________________
+
+
+Q7. (2 marks)
+Which line of code is modified in the lab to enable quantized MobileNetV2?
+Answer:
+ Set the following line in the code:
+python
+CopyEdit
+quantize = True  # (Line 11)
+
+
+________________
+
+
+Q8. (2 marks)
+What is the observed difference in FPS between unquantized and quantized MobileNetV2 on Raspberry Pi?
+Answer:
+  * Unquantized model: ~5–6 FPS
+
+* Quantized model: ~30 FPS (significant performance boost)
+
+________________
+
+
+Section C: Real-Time Video Classification (10 marks)
+Q9. (2 marks)
+Why is input resized to 224x224 for MobileNetV2?
+Answer:
+ Because MobileNetV2 requires input size of 224x224 pixels, as it was trained on ImageNet with that resolution.
+________________
+
+
+Q10. (2 marks)
+Why do we target 36 FPS even though our goal is 30 FPS?
+Answer:
+ To ensure a buffer of extra frames for pre-processing, so the model always has 
+enough input frames without delays or frame drops.
+________________
+
+
+Q11. (4 marks)
+How do you print the top-10 prediction classes during inference in real-time?
+Answer:
+ Uncomment the lines in the code (Lines 57–61) that print sorted predictions:
+python
+CopyEdit
+topk = torch.topk(output, 10)
+for i in range(10):
+    print(f"Class: {idx_to_class[topk.indices[i]]}, Score: {topk.values[i]}")
+
+
+________________
+
+
+Q12. (2 marks)
+What is the main trade-off when using quantized models?
+Answer:
+ * Pros: Faster inference, lower memory usage
+
+  * Cons: Slight accuracy loss due to reduced precision
+
+________________
+
+
+Section D: Extended Practice and Quantization Exercise (10 marks)
+Q13. (2 marks)
+Why are quantized models suitable for Edge devices like Raspberry Pi?
+Answer:
+ Because they require less compute, less power, and fit within limited memory, 
+making them efficient for real-time applications on edge devices.
+________________
+
+
+Q14. (2 marks)
+Name two additional deep learning models you could try quantizing.
+Answer:
+  1. ResNet-18 or ResNet-50
+
+  2. EfficientNet, YOLO, or custom CNN architectures
+
+________________
+
+
+Q15. (4 marks)
+Explain the advantage of Quantization Aware Training (QAT) over Post Training Quantization.
+Answer:
+ QAT simulates quantization effects during training, which allows the model to adapt to lower precision, 
+leading to better accuracy retention compared to post-training quantization, which often suffers from accuracy loss.
+________________
+
+
+Q16. (2 marks)
+How can you evaluate if quantization worked effectively?
+Answer: Compare the model size, inference time (FPS), and accuracy before and after quantization.
+
+
+
+
+
+Lab 8 - MQTT
+
+
+Q1. (2 marks)
+What is MQTT and why is it ideal for IoT applications?
+Answer:
+ MQTT (Message Queue Telemetry Transport) is a lightweight publish-subscribe messaging protocol designed 
+for low bandwidth, high latency, or unreliable networks. It's ideal for IoT due to:
+  
+* Low overhead
+
+* Minimal power and memory usage
+
+* Efficient message distribution via broker.
+
+________________
+
+
+Q2. (2 marks)
+What is the role of the MQTT Broker?
+Answer:
+ The broker:
+    * Acts as a middleman between publishers and subscribers.
+
+* Receives messages from publishers and routes them to subscribed clients based on topic names.
+
+________________
+
+
+Q3. (2 marks)
+How do you install the Mosquitto MQTT broker on Raspberry Pi?
+Answer:
+bash
+CopyEdit
+sudo apt update  
+sudo apt install mosquitto
+
+
+________________
+
+
+Q4. (2 marks)
+What configuration must be added to allow Mosquitto to accept anonymous client connections on port 1883?
+Answer: Add the following lines in /etc/mosquitto/mosquitto.conf:
+yaml
+CopyEdit
+listener 1883  
+allow_anonymous true
+
+
+________________
+
+
+Q5. (2 marks)
+How do you start the Mosquitto broker manually with a custom configuration file?
+Answer:
+bash
+CopyEdit
+sudo mosquitto -c /etc/mosquitto/mosquitto.conf
+
+
+________________
+
+
+Section B: MQTT Client Configuration (10 marks)
+Q6. (2 marks)
+How do you install the Python MQTT client library for creating publisher/subscriber?
+Answer:
+bash
+CopyEdit
+pip install paho-mqtt
+
+
+________________
+
+
+Q7. (2 marks)
+What does a MQTT publisher client do?
+Answer:
+ It sends messages to the broker on a specific topic that other clients (subscribers) may be subscribed to.
+________________
+
+
+Q8. (2 marks)
+Write a short Python snippet for a basic MQTT Publisher that sends "Hello IoT" every 3 seconds.
+Answer:
+python
+CopyEdit
+import paho.mqtt.client as mqtt  
+import time
+
+
+client = mqtt.Client("Publisher")  
+client.connect("localhost", 1883)
+
+
+while True:
+    client.publish("iot/topic", "Hello IoT")  
+    time.sleep(3)
+
+
+________________
+
+
+Q9. (2 marks)
+What is the purpose of client.loop_forever() in the subscriber script?
+Answer:
+ It keeps the MQTT subscriber listening for messages continuously, maintaining the 
+connection and triggering the on_message() callback when messages are received.
+________________
+
+
+Q10. (2 marks)
+How do you start the subscriber and publisher clients from terminal?
+Answer:
+bash
+CopyEdit
+# In Terminal 1 (Subscriber)
+python3 mqtt_subscriber.py
+
+
+# In Terminal 2 (Publisher)
+python3 mqtt_publisher.py
+
+
+________________
+
+
+Section C: MQTT Communication Testing and Image Application (10 marks)
+Q11. (2 marks)
+What is the purpose of using topics in MQTT communication?
+Answer:
+ Topics act as message channels or categories. Clients subscribe or publish messages to 
+specific topics, allowing organized message routing and selective communication.
+________________
+
+
+Q12. (4 marks)
+Explain a practical use case where MQTT can be integrated with image capture in IoT systems.
+Answer:
+ An IoT system where a subscriber listens for a "capture_image" command via MQTT topic. Once received, it:
+  1. Triggers webcam capture
+
+  2. Captures an image
+
+  3. Sends the image back to another client using MQTT as a publisher.
+
+This is useful in:
+   * Surveillance systems
+
+    * Remote monitoring
+
+    * Sensor-triggered image capture
+
+________________
+
+
+Q13. (2 marks)
+What must be done before running publisher/subscriber scripts inside a virtual environment?
+Answer: Activate the virtual environment:
+bash
+CopyEdit
+source myenv/bin/activate
+
+
+________________
+
+
+Q14. (2 marks)
+What Python library is used to handle MQTT communication in this lab?
+Answer:
+ paho-mqtt library
+________________
+
+
+Section D: Advanced MQTT and Integration (10 marks)
+Q15. (4 marks)
+Design an outline for a script that:
+    * Subscribes to a topic "capture/image"
+
+    * Captures an image via webcam when the message is received
+
+     * Publishes the image to another topic
+
+Answer (Outline):
+    * Subscribe to capture/image
+
+     * On receiving message, capture image using cv2.VideoCapture()
+
+     * Encode image using cv2.imencode()
+
+     * Convert image to bytes
+
+     * Publish to topic image/data
+
+________________
+
+
+Q16. (2 marks)
+Which function handles message reception in MQTT subscriber scripts?
+Answer:
+ on_message() callback function
+________________
+
+
+Q17. (2 marks)
+Can MQTT transfer binary data like images?
+Answer:
+ Yes, images can be converted into byte streams and published via MQTT topics. Subscriber must 
+decode the image from bytes to display or store it.
+________________
+
+
+Q18. (2 marks)
+List two advantages of MQTT over HTTP for IoT.
+Answer:
+ 1. Lightweight communication — less overhead and bandwidth usage.
+
+ 2. Real-time communication with publish-subscribe architecture and lower latency.
+
+
+
+
+Lab 10 - AWS IoT Core
+
+
+Section A: AWS IoT Core Basics and Setup (10 marks)
+Q1. (2 marks)
+What is AWS IoT Core and what is its primary function?
+Answer:
+ AWS IoT Core is a cloud-managed service that enables you to connect edge devices (IoT things) 
+securely and manage real-time communication between devices and AWS services over protocols 
+like MQTT, HTTP, and WebSocket.
+________________
+
+
+Q2. (2 marks)
+What is a “Thing” in AWS IoT Core?
+Answer:
+ A "Thing" refers to a virtual representation of a physical device (e.g., Raspberry Pi) in AWS IoT. 
+It allows device-specific configuration, authentication, and message routing.
+________________
+
+
+Q3. (2 marks)
+List the three files generated during the AWS IoT device setup that are used for secure communication.
+Answer:
+    1. Device Certificate → aws-certificate.pem.crt
+
+    2. Public Key File → aws-public.pem.key
+
+    3. Private Key File → aws-private.pem.key
+
+________________
+
+
+Q4. (2 marks)
+What AWS IoT Core feature allows access control to IoT resources?
+Answer:
+ IoT Policy – It defines the permissions for a device or certificate to publish, subscribe, 
+connect, or perform other actions in AWS IoT Core.
+________________
+
+
+Q5. (2 marks)
+What is the significance of the AWS IoT Core Endpoint?
+Answer:
+ It is the unique MQTT broker address provided by AWS IoT Core which devices use to connect 
+securely and send/receive data. It’s found under IoT Core > Connect > Endpoint.
+________________
+
+
+Section B: Raspberry Pi MQTT Setup and Data Transmission (10 marks)
+Q6. (2 marks)
+How do you set up a Python virtual environment on Raspberry Pi for this AWS IoT lab?
+Answer:
+bash
+CopyEdit
+sudo apt install python3-venv  
+python3 -m venv awsiotcore  
+source awsiotcore/bin/activate
+
+
+________________
+
+
+Q7. (2 marks)
+Which Python libraries are used to send MQTT data and fetch CPU utilization?
+Answer:
+ 1. paho-mqtt – For MQTT communication
+
+2. psutil – To fetch system metrics like CPU utilization
+
+________________
+
+
+Q8. (2 marks)
+Write a sample MQTT connect line used in the Python script to connect to AWS IoT Core.
+Answer:
+python
+CopyEdit
+client.connect("your-endpoint-ats.iot.ap-southeast-1.amazonaws.com", 8883, 60)
+
+
+________________
+
+
+Q9. (2 marks)
+How do you transfer the script folder with security certificates to the Raspberry Pi?
+Answer: Using scp:
+bash
+CopyEdit
+scp -r aws_iot_core <username>@<rpi_IP_address>:/home/pi/
+
+
+________________
+
+
+Q10. (2 marks)
+How can you view MQTT messages in AWS IoT Core?
+Answer:
+ Go to IoT Core > Test > MQTT Test Client > Subscribe to topic (e.g., device/data) to view 
+incoming messages from the Raspberry Pi.
+________________
+
+
+Section C: Data Ingestion to DynamoDB using IoT Rule (10 marks)
+Q11. (2 marks)
+How can you format a JSON message in Python for transmission to AWS IoT Core?
+Answer:
+python
+CopyEdit
+message = json.dumps({
+    "time": int(time.time()),
+    "quality": "GOOD",
+    "hostname": "rpiedge",
+    "value": psutil.cpu_percent()
+}, indent=2)
+
+
+________________
+
+
+Q12. (2 marks)
+What is an IoT Rule in AWS IoT Core?
+Answer:
+ An IoT Rule enables message routing from MQTT topics to AWS services like DynamoDB, SNS, Lambda, 
+etc., using SQL-based queries.
+________________
+
+
+Q13. (2 marks)
+In DynamoDB, what are the primary key and sort key used in the lab?
+Answer:
+  * Primary Key: hostname
+
+  * Sort Key: time
+
+________________
+
+
+Q14. (2 marks)
+What permissions are required for AWS IoT Core to write data to DynamoDB?
+Answer:
+ An IAM role with appropriate DynamoDB write permissions (PutItem) must be attached to the IoT Rule to enable data ingestion.
+________________
+
+
+Q15. (2 marks)
+How do you verify that data is being inserted into DynamoDB?
+Answer:
+ Go to DynamoDB > Tables > Select your table > Explore Table Items, then refresh after running the Python MQTT script on Raspberry Pi.
+________________
+
+
+Section D: Application and Extension (10 marks)
+Q16. (2 marks)
+Why is MQTT preferred for IoT data transmission over HTTP?
+Answer:
+ MQTT is:
+   * Lightweight,
+
+    * Designed for low-power, bandwidth-constrained devices,
+
+    * Provides faster delivery and reliable message routing using publish-subscribe model.
+
+________________
+
+
+Q17. (2 marks)
+Suggest one practical use case for Raspberry Pi + AWS IoT + DynamoDB setup.
+Answer:
+ Smart Energy Monitoring System: Raspberry Pi collects electricity usage data, 
+sends to AWS IoT Core, and stores in DynamoDB for real-time analysis and billing.
+________________
+
+
+Q18. (2 marks)
+How can you secure MQTT messages to AWS IoT Core?
+Answer:
+ Using TLS encryption and X.509 certificates (device cert, private/public key pair), which authenticate the device securely.
+________________
+
+
+Q19. (2 marks)
+List two benefits of using IoT Rules for data routing.
+Answer:
+1. Automated message routing to AWS services like Lambda, S3, DynamoDB.
+
+2. Serverless integration without manually handling incoming messages.
+
+________________
+
+
+Q20. (2 marks)
+What optional task can you perform to enhance this setup?
+Answer:
+ Add sensor data integration or ML inference results, then route that processed edge intelligence 
+to AWS IoT Core and forward it to Dashboards or Analytics platforms.
+
+
+
+
+
+Combined Lab 
+
+
+Q1. (2 marks)
+ Why is using a virtual environment essential when working on multiple edge projects on Raspberry Pi?
+Answer:
+  * Isolates dependencies per project
+
+  * Prevents library conflicts across different projects
+
+  * Allows clean environment management and version control
+
+________________
+
+
+Q2. (2 marks)
+ List the command to install OpenCV, Paho-MQTT, and Torch in a new virtual environment.
+Answer:
+bash
+CopyEdit
+pip install opencv-python  
+pip install paho-mqtt  
+pip install torch torchvision torchaudio
+
+
+________________
+
+
+Q3. (2 marks)
+ How does frame rate (FPS) affect edge applications using image/video analytics or deep learning inference?
+Answer:
+   * Higher FPS = smoother real-time processing
+
+     * Lower FPS = delays/lag, impacts user experience or real-time decisions
+
+    * Inference time must be lower than frame rate duration to keep up
+
+________________
+
+
+Q4. (2 marks)
+ Which Python library would you use for: a) Audio recording → ________
+ b) Image edge feature extraction → ________
+ c) CPU usage monitoring → ________
+Answer: a) sounddevice or pyaudio
+ b) skimage.feature (for HoG)
+c) psutil
+________________
+
+
+Section B: Cross-Modality Integration (10 marks)
+Q5. (2 marks)
+ Describe a use case that combines sound analytics and IoT MQTT.
+Answer:
+ A smart noise detector on Raspberry Pi captures audio, analyzes it using FFT/MFCC, and sends alerts 
+via MQTT when abnormal sound patterns (e.g., alarms, screams) are detected.
+________________
+
+
+Q6. (2 marks)
+ How would you trigger video/image capture using a keyword detected through speech recognition?
+Answer:
+   * Run speech-to-text module using speech_recognition
+
+  * When keyword (e.g., “capture”) is detected, trigger cv2.VideoCapture()
+
+  * Save image or start video stream
+
+________________
+
+
+Q7. (2 marks)
+ What is the difference between using OpenCV-based optical flow and deep 
+learning-based object detection (e.g., EfficientDet)?
+Answer:
+   * Optical Flow: Tracks movement of pixels between frames (class-agnostic)
+
+    * EfficientDet (DL): Identifies and classifies objects (class-specific), more accurate but requires inference time
+
+________________
+
+
+Q8. (2 marks)
+ Can an image captured via OpenCV be published over MQTT to another system? How?
+Answer:
+ Yes, by:
+1. Encoding image as byte stream using cv2.imencode()
+
+ 2. Base64 encode it
+
+ 3. Publish using client.publish(topic, image_bytes)
+
+________________
+
+
+Q9. (2 marks)
+ What challenges do you face when transmitting images or large data over MQTT, and how do you solve them?
+Answer:
+* Challenges: Bandwidth, latency, and packet size limits
+
+ * Solutions:
+
+* Compress images
+
+ * Use QoS levels
+
+* Base64 encoding
+
+ * Consider hybrid protocols for larger payloads
+
+________________
+
+
+Section C: Deep Learning on Edge & Optimization (10 marks)
+Q10. (2 marks)
+ Why is quantization critical in deploying deep learning models on edge devices?
+Answer:
+ * Reduces model size and computation
+
+* Increases inference speed (FPS)
+
+   * Lowers memory and power consumption
+
+________________
+
+
+Q11. (2 marks)
+ How can image analytics and quantized DL inference be combined for real-world applications?
+Answer:
+ E.g., Face recognition kiosk:
+ * Detect face using OpenCV/Mediapipe
+
+  * Pass ROI to quantized classifier (MobileNet) for identification
+
+   * Faster inference ensures real-time interaction
+
+________________
+
+
+Q12. (2 marks)
+ Compare Post-Training Quantization vs Quantization Aware Training.
+Answer:
+Method			Description		Accuracy		Complexity
+PTQ			After training		May drop		Simple
+QAT			During training		Retains			Complex
+	
+	________________
+
+
+Q13. (2 marks)
+ You trained a DL model to detect facial emotions. How would you send 
+only “Happy” detections via MQTT to AWS IoT Core?
+Answer:
+* Check detection result == “Happy”
+
+* If true: client.publish("emotion/happy", result)
+
+* IoT Core routes to desired AWS service (e.g., DynamoDB, SNS)
+
+________________
+
+
+Q14. (2 marks)
+ How does using HoG + Quantized Model + MQTT form an efficient pipeline?
+Answer:
+  * HoG extracts efficient lightweight features
+
+* Quantized model reduces inference load
+
+* MQTT provides fast, low-bandwidth communication — perfect for edge-based object recognition + notification
+
+________________
+
+
+Section D: Cloud Integration and Data Routing (10 marks)
+Q15. (2 marks)
+ How do you ensure secure MQTT connection to AWS IoT Core?
+Answer:
+  * Use X.509 certificates, TLS encryption, and IoT Policies to authenticate and authorize device connections
+
+________________
+
+
+Q16. (2 marks)
+ How does a DynamoDB IoT Rule mapping work for storing data?
+Answer:
+    * Rule uses SQL SELECT on topic
+
+     * Maps MQTT payload fields (e.g., hostname, time) to DynamoDB keys
+
+________________
+
+
+Q17. (2 marks)
+ Describe a full-stack IoT use case combining Sound Analytics, DL inference, and AWS DynamoDB.
+Answer:
+    * Mic detects abnormal sound →
+
+    * DL model classifies it (e.g., “glass break”) →
+
+    * Message published via MQTT to AWS IoT →
+
+     * Stored in DynamoDB for alerts/logs
+
+________________
+
+
+Q18. (2 marks)
+ Why is Edge + Cloud integration a balanced strategy in IoT deployments?
+Answer:
+   * Edge: Fast local inference, privacy
+
+   * Cloud: Centralized storage, dashboards, ML training
+
+    * Together: Low latency + high scalability
+
+________________
+
+
+Q19. (2 marks)
+ List 3 things you must ensure before deploying a real-world IoT Edge system.
+Answer:
+      1. Resource optimization (FPS, model size)
+
+       2. Secure communication (certificates, encryption)
+
+      3. Stable MQTT routing and data integrity checks
+
+________________
+
+
+Q20. (2 marks)
+ Bonus: How would you implement a system where a clap sound triggers an image capture, 
+and image is sent to cloud storage?
+Answer:
+                                                                                                                                                                                             * Use Sound Analytics (detect clap via FFT threshold) →
+
+                                                                                                                                                                                             * Trigger cv2.VideoCapture() →
+
+                                                                                                                                                                                             * Encode image and send via MQTT →
+
+                                                                                                                                                                                             * AWS IoT Rule routes to S3 bucket/DynamoDB
