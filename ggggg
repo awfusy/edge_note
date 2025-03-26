@@ -1,0 +1,294 @@
+lab 1 
+
+1. Detailed Note List (Potential Quiz Questions):
+
+Objective: Understand microphone setup, audio capture, and basic sound analytics on Raspberry Pi.
+Virtual Environments:
+Purpose: Isolates project dependencies.
+Command: python3 -m venv audio then source audio/bin/activate
+Microphone Testing:
+Command: arecord --duration=10 test.wav (records 10 seconds of audio)
+Command: aplay test.wav (plays the recorded audio)
+Python Libraries:
+pyaudio or sounddevice (audio recording).
+scipy (scientific computing).
+matplotlib (visualization).
+librosa (feature extraction).
+SpeechRecognition (speech recognition).
+portaudio19-dev (required for pyaudio)
+Fourier Transform:
+Purpose: Converts time-domain audio to frequency-domain.
+Allows visualization of frequency components (spectrum).
+Sound Visualization:
+Waveform (time-domain).
+Spectrum (frequency-domain).
+Filtering (Bandpass):
+Removes unwanted frequencies or noise.
+Requires identifying target frequency from spectrum.
+Feature Extraction:
+Spectrogram: Visual representation of frequency spectrum over time.
+Chromogram: representation of pitch classes.
+Mel-Spectrogram: uses Mel scale and Decibel scale for frequency and amplitude.
+MFCC (Mel Frequency Cepstral Coefficients): representation of short-term power spectrum.
+Speech Recognition:
+CMUSphinx (offline, edge device).
+Google Speech Recognition (online, cloud-based).
+speech_recognition library usage.
+FLAC encoder is needed.
+Wake Word Detection:
+Identifying specific words in predicted text.
+2. Numerical Data List:
+
+10: Duration (in seconds) of audio recording (arecord --duration=10).
+16GB: Recommended MicroSD card size.
+12: Number of pitch classes in a chromagram.
+3. Example List:
+
+Microphone Testing:
+Recording 10 seconds of audio using arecord and playing it back with aplay.
+Sound Visualization:
+Showing a plot of a captured speech waveform and its corresponding frequency spectrum.
+Filtering:
+Using code to filter out specific frequency ranges from recorded audio.
+Feature Extraction:
+Generating spectrogram, chromogram, Mel-spectrogram, and MFCC representations from a test.wav file.
+Speech Recognition:
+Using CMUSphinx and Google Speech Recognition to transcribe spoken words.
+Comparing the accuracy of offline vs. cloud based speech to text.
+Implementing a basic wake word detection system.
+
+
+LAB 2
+1. Detailed Note List (Potential Quiz Questions):
+
+Objective: Understand webcam setup, image capture, and basic/advanced image analytics on Raspberry Pi.
+Edge Computer Vision (ECV):
+Benefits: Real-time processing, enhanced privacy, reduced network dependency.
+Gartner 2023: Recognized as a top emerging technology.
+Virtual Environments:
+Purpose: Isolates project dependencies.
+Command: python3 -m venv image then source image/bin/activate
+OpenCV:
+Purpose: Image processing and computer vision library.
+Command: pip install opencv-python
+Used for tasks such as color segmentation, and face detection.
+Color Segmentation:
+Process: Separating image into color channels (RGB).
+Based on intensity ranges within each color channel.
+Scikit-image:
+Purpose: Image processing library.
+Command: pip install scikit-image
+Used for feature extraction, such as Histogram of Gradients (HoG).
+Histogram of Gradients (HoG):
+Purpose: Feature extraction for object detection (e.g., faces).
+Process: Gradient operations on image patches.
+Requires gray scale conversion.
+Impact of image resizing and patch size on performance.
+MediaPipe:
+Purpose: On-device ML framework for multimedia processing.
+Features: Face landmark detection, pose estimation, hand detection, etc.
+Command: pip install mediapipe
+Lightweight compared to other methods.
+Haar Cascade:
+An alternate method for face detection using OpenCV.
+Requires manual download of haarcascade_frontalface_alt2.xml.
+Image Resizing:
+Downsizing images speeds up computation on edge devices.
+2. Numerical Data List:
+
+2023: Year Gartner recognized ECV as a top emerging technology.
+16GB: Recommended MicroSD card size.
+3. Example List:
+
+Color Segmentation:
+Using OpenCV to separate an image into red, green, and blue components.
+Histogram of Gradients (HoG):
+Applying HoG feature extraction using scikit-image and visualizing dominant HoG features.
+Observing the effects of image resizing on HoG calculation and frame rate.
+Changing patch size and observing changes in result.
+Face Detection:
+Using OpenCV to detect faces with multiscale HoG feature extraction.
+Using Mediapipe to detect faces and extract facial landmarks.
+Using Haar cascade model within OpenCV as an alternative face detection method.
+
+
+LAB 3
+1. Detailed Note List (Potential Quiz Questions):
+
+Objective: Understand webcam setup, video stream capture, and basic/advanced video analytics on Raspberry Pi.
+Edge Video Analytics:
+Importance: Privacy/security, bandwidth reduction.
+Challenges: Real-time processing on resource-constrained devices.
+Virtual Environments:
+Purpose: Isolates project dependencies.
+Command: python3 -m venv video then source video/bin/activate (or reuse "image").
+OpenCV:
+Purpose: Video processing and computer vision library.
+Command: pip install opencv-python.
+Used for optical flow estimation.
+Optical Flow Estimation:
+Purpose: Tracking moving objects in a video sequence.
+Methods: Lucas Kanade, Farneback.
+Visualization: Streamlines, directional arrows.
+Parameter modification is important.
+MediaPipe:
+Purpose: On-device ML framework for multimedia processing.
+Features: Hand landmark detection, gesture recognition, object detection.
+Command: pip install mediapipe.
+Requires downloading models.
+Hand Landmark Detection:
+Requires hand_landmarker.task model.
+Used to detect hand and finger locations.
+21 finger points.
+Hand Gesture Recognition:
+Requires gesture_recognizer.task model.
+Used to recognize hand gestures in real-time.
+Object Detection:
+Requires efficientdet_lite0.tflite model.
+Used to detect objects in real-time.
+Video Summarization:
+Using object detection to select important frames.
+2. Numerical Data List:
+
+21: Number of finger points detected by MediaPipe's hand landmark detection.
+16GB: Recommended MicroSD card size.
+3. Example List:
+
+Optical Flow Estimation:
+Using OpenCV to track moving objects with Lucas Kanade and Farneback methods.
+Visualizing the motion through arrows.
+Hand Landmark Detection:
+Using MediaPipe to detect hand and finger locations.
+Displaying finger point coordinates.
+Calculating and displaying the number of raised fingers.
+Hand Gesture Recognition:
+Using MediaPipe to recognize hand gestures (e.g., victory sign).
+Object Detection:
+Using MediaPipe to detect objects in real-time.
+Video Summarization:
+Creating a video summary by only including frames containing a specific object, such as a cellphone.
+
+
+LAB 4
+1. Detailed Note List (Potential Quiz Questions):
+
+Objective: Understand how to run deep learning models on edge devices (Raspberry Pi) and learn about quantization methods.
+Edge Device Challenges:
+Limited hardware resources.
+Complex deep learning models require high computational power and memory.
+Optimization Techniques:
+Quantization.
+Converting trained models to architecture-specific lite models.
+Virtual Environments:
+Purpose: Isolates project dependencies.
+Command: python3 -m venv dlonedge then source dlonedge/bin/activate.
+Required Libraries:
+torch, torchvision, torchaudio.
+opencv-python.
+numpy.
+MobileNetV2:
+Image classification model used in the lab.
+Input size: 224x224 pixels.
+Target frame rate: 30 fps.
+Quantization:
+Purpose: Reduces model size and increases inference speed.
+Process: Reduces bitwidths of computations and tensor storage.
+Benefits: Smaller model size, hardware-accelerated vector operations.
+Quantization Impact on FPS:
+Without quantization the FPS was 5-6.
+With quantization the FPS was close to 30.
+Quantization Trade-offs:
+Reduced precision can lead to accuracy loss.
+Balance between accuracy and efficiency.
+Quantization Methods:
+Post-Training Quantization:
+Converts trained model to quantized model after training.
+May result in accuracy loss.
+Quantization-Aware Training:
+Simulates quantization during training.
+Retrains the model with fake quantization operators.
+Typically yields better accuracy.
+2. Numerical Data List:
+
+16GB: Recommended MicroSD card size.
+224x224: Input image size for MobileNetV2.
+30fps: Target frame rate.
+36fps: requested frame rate.
+5-6fps: frame rate of the non quantized model.
+10: Number of top predictions displayed.
+32-bit: Floating-point precision for typical neural networks.
+8-bit: Integer precision used in quantization.
+3. Example List:
+
+Running MobileNetV2:
+Loading a pre-trained MobileNetV2 model on Raspberry Pi.
+Observing frame rate (FPS) without quantization.
+Enabling quantization and observing the increased frame rate.
+Real-time Prediction Display:
+Displaying the top 10 predictions from the MobileNetV2 model in real-time.
+Post-Training Quantization:
+Using PyTorch to quantize a pre-trained model.
+Quantization-Aware Training:
+Using PyTorch to retrain a model with simulated quantization.
+
+
+
+MQTT 
+
+1. Detailed Note List (Potential Quiz Questions):
+
+Objective: Install and configure an MQTT broker, create publisher/subscriber clients, and test communication on a Raspberry Pi.
+MQTT (Message Queue Telemetry Transport):
+Lightweight, open, publish/subscribe messaging protocol.
+Ideal for IoT applications with constrained environments.
+Runs over TCP/IP.
+MQTT Components:
+MQTT Broker:
+Accepts and delivers messages between clients.
+Uses topics to organize messages.
+Example: Mosquitto.
+Topic:
+Namespace for messages on the broker.
+Clients publish or subscribe to specific topics.
+MQTT Client:
+Device that publishes or subscribes to topics.
+Actions: Publish, subscribe, unsubscribe, disconnect.
+Mosquitto Broker Configuration:
+Configuration file: /etc/mosquitto/mosquitto.conf.
+listener 1883: Allows broker to listen on port 1883.
+allow_anonymous true: Allows clients to connect without credentials.
+Mosquitto Broker Commands:
+sudo apt install mosquitto: Installs Mosquitto.
+sudo mosquitto -c /etc/mosquitto/mosquitto.conf: Manually starts Mosquitto.
+sudo systemctl start mosquitto: Starts Mosquitto service.
+sudo systemctl enable mosquitto: Enables Mosquitto to start on boot.
+sudo systemctl restart mosquitto: Restarts Mosquitto.
+systemctl status mosquitto: Checks Mosquitto status.
+sudo systemctl disable mosquitto: Disables Mosquitto on boot.
+sudo systemctl stop mosquitto: Stops Mosquitto.
+Paho MQTT Library:
+Python library for MQTT clients.
+pip install paho-mqtt: Installs Paho MQTT.
+Publisher Client:
+Publishes messages to a specific topic.
+Subscriber Client:
+Subscribes to a topic and receives published messages.
+Virtual Environments:
+source myenv/bin/activate: activates the virtual environment.
+2. Numerical Data List:
+
+1883: Default port for MQTT broker.
+3. Example List:
+
+Mosquitto Broker Configuration:
+Editing mosquitto.conf to allow anonymous connections on port 1883.
+MQTT Publisher Script (mqtt_publisher.py):
+Connecting to the MQTT broker.
+Publishing "Hello, MQTT!" to the "test/topic" every 5 seconds.
+MQTT Subscriber Script (mqtt_subscriber.py):
+Connecting to the MQTT broker.
+Subscribing to the "test/topic".
+Printing received messages.
+Testing MQTT Communication:
+Running the publisher and subscriber scripts in separate terminal windows.
+Observing messages sent from publisher and recieved by subscriber.
